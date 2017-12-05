@@ -1,3 +1,6 @@
+
+![travis](https://travis-ci.org/zacharysells/ebs-backups.svg?branch=master)
+
 # ebs-backups
 This is the source of a Docker image that can be used to generate EBS backups. 
 The script will iterate over all AWS regions, looking for instances with a `backup=True` tag. Any found instances will have their volumes snapshotted. 
