@@ -12,7 +12,7 @@ def volumes_to_snap(ec2):
     """
     Gathers a list of volumes with some metadata to be snapshotted.
     """
-    delete_date = datetime.date.today() + datetime.timedelta(days=os.environ.get('NUM_SNAPS_TO_KEEP', 7))
+    delete_date = datetime.date.today() + datetime.timedelta(days=int(os.environ.get('NUM_SNAPS_TO_KEEP', 7)))
     volumes = []
     response = ec2.describe_instances(Filters=[{'Name': 'tag-key', 'Values': ['backup', 'True']}])
     for r in response['Reservations']:
@@ -119,7 +119,7 @@ def snapshots_to_purge(ec2):
     for vol_id, snaps in volume_to_snaps.items():
         # sort the list of snapshots by their "DeleteOn" Tag date in decsending order.
         snaps.sort(reverse=True, key=lambda s: next(tag['Value'] for tag in s['Tags'] if tag['Key'] == 'DeleteOn'))
-        while len(snaps) > os.environ.get('NUM_SNAPS_TO_KEEP', 7):
+        while len(snaps) > int(os.environ.get('NUM_SNAPS_TO_KEEP', 7)):
             snap_to_del = snaps[-1]
             tags = dict([(t['Key'], t['Value']) for t in snap_to_del['Tags']])
             if tags['DeleteOn'] > today.strftime('%Y-%m-%d'):
