@@ -102,7 +102,6 @@ def create_snaps(volumes):
                     successful = True # Need to break out of this loop since this will never succeed.
                 else:
                     print(str(e))
-                    error += '%s\n' + str(e)
                     time.sleep(1)
             else:
                 successful = True
