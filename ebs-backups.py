@@ -92,13 +92,18 @@ def create_snaps(volumes):
                         ]
                     )
             except botocore.exceptions.ClientError as e:
-                if 'RequestLimitExceeded' in str(e) or 'SnapshotLimitExceeded' in str(e):
+                if 'RequestLimitExceeded' in str(e):
                     time.sleep(sleep_time)
                     print("Request limit reached. Sleeping for %ds Retrying %s..." % (sleep_time, snapshot_name))
                     sleep_time *= 2
+                elif 'SnapshotLimitExceeded' in str(e):
+                    print(str(e))
+                    error += '%s\n' + str(e)
+                    successful = True # Need to break out of this loop since this will never succeed.
                 else:
                     print(str(e))
                     error += '%s\n' + str(e)
+                    time.sleep(1)
             else:
                 successful = True
 
@@ -142,7 +147,7 @@ def purge_snaps(snaps):
         while not successful:
             try:
                 print("Deleting %s" % s)
-                if not os.environ.get('DRY_RUN', False):                
+                if not os.environ.get('DRY_RUN', False):
                     ec2.delete_snapshot(SnapshotId=s)
             except botocore.exceptions.ClientError as e:
                 if 'RequestLimitExceeded' in str(e):
@@ -166,7 +171,7 @@ def main():
 
     Accepted environment arguments:
         - NUM_SNAPS_TO_KEEP - Defaults to 7. Number of days of snapshots to keep before purging.
-        - DRY_RUN - Defaults to False. Just prints out what it would do, but doesn't actually create or purge snapshots. 
+        - DRY_RUN - Defaults to False. Just prints out what it would do, but doesn't actually create or purge snapshots.
                     If you want to actually do a dry run, just set this environment variable to any string.
     """
     ec2 = boto3.client('ec2')
