@@ -175,6 +175,8 @@ def main():
     """
     ec2 = boto3.client('ec2')
     response = ec2.describe_regions()
+    err_create = ''
+    err_purge = ''
     for r in response['Regions']:
         region_name = r['RegionName']
         print ("Checking region %s..." % region_name)
@@ -185,22 +187,22 @@ def main():
             'Region': region_name,
             'Volumes': volumes_to_snap(ec2)
         }
-        err_create = create_snaps(volumes)
+        err_create += create_snaps(volumes)
 
         # Snaphots to delete
         snapshots = {
             'Region': region_name,
             'Snapshots': snapshots_to_purge(ec2)
         }
-        err_purge = purge_snaps(snapshots)
+        err_purge += purge_snaps(snapshots)
 
-        if err_create:
-            print("The following errors occured during the create_snapshot operation: %s" % err_create)
-        if err_purge:
-            print("The following errors occured during the purge snapshot operation: %s" % err_purge)
+    if err_create:
+        print("The following errors occured during the create_snapshot operation: %s" % err_create)
+    if err_purge:
+        print("The following errors occured during the purge snapshot operation: %s" % err_purge)
 
-        if err_create or err_purge:
-            sys.exit(1)
+    if err_create or err_purge:
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
