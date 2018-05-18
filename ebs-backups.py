@@ -92,7 +92,7 @@ def create_snaps(volumes):
                         ]
                     )
             except botocore.exceptions.ClientError as e:
-                if 'RequestLimitExceeded' in str(e):
+                if 'RequestLimitExceeded' in str(e) or 'SnapshotLimitExceeded' in str(e):
                     time.sleep(sleep_time)
                     print("Request limit reached. Sleeping for %ds Retrying %s..." % (sleep_time, snapshot_name))
                     sleep_time *= 2
