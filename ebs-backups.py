@@ -203,6 +203,8 @@ def main():
 
     if err_create or err_purge:
         sys.exit(1)
+    else:
+        print("The EBS snapshot function completed without error.")
 
 if __name__ == '__main__':
     main()
